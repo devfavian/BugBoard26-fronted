@@ -85,7 +85,6 @@ public class LoginView extends BorderPane {
     String psw = pswField.getText() == null ? "" : pswField.getText();
 
     // niente regex: il bottone deve essere cliccabile con QUALSIASI email
-    // (teniamo solo il controllo minimo: campi non vuoti)
     boolean canClick = !email.isBlank() && !psw.isBlank();
 
     loginBtn.setDisable(!canClick);
