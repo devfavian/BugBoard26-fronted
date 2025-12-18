@@ -74,25 +74,15 @@ public class DashboardView extends BorderPane {
                 AppNavigator::goReportIssue
         );
 
-        Button edit = card(
-                "Modifica Issue",
-                "Aggiorna una segnalazione esistente",
-                loadIcon("icons/edit.png", "✏️", 42),
-                AppNavigator::goEditIssue
-        );
-
         Button view = card(
                 "Visualizza Issue",
-                "Vista completa (solo Admin)",
-                loadIcon("icons/view.png", "👁️", 42),
-                AppNavigator::goViewIssues
+                "Vedi tutte le issue e modifica solo le tue",
+                loadIcon("icons/view.png", "📋", 42),
+                AppNavigator::goIssuesList   // <-- IMPORTANT: qui deve portare alla lista
         );
 
-        boolean isAdmin = "ADMIN".equalsIgnoreCase(Session.getRole());
-        view.setVisible(isAdmin);
-        view.setManaged(isAdmin);
-
-        grid.getChildren().addAll(report, view, edit);
+        // solo due cards
+        grid.getChildren().addAll(report, view);
 
         VBox center = new VBox(18, header, grid);
         center.setAlignment(Pos.CENTER);

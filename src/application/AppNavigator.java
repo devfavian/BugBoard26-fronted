@@ -34,4 +34,7 @@ public final class AppNavigator {
     public static void goEditIssue() {
         scene.setRoot(new PlaceholderView("Modifica Issue"));
     }
+
+    public static void goIssuesList() { scene.setRoot(new IssuesListView()); }
+
 }

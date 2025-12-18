@@ -2,72 +2,75 @@ package application;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.control.Alert;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextField;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.Region;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 
 public class AccountView extends BorderPane {
 
     public AccountView() {
         getStyleClass().add("root");
-        setTop(topBar());
-        setCenter(content());
-        setPadding(new Insets(18));
+
+        setPadding(new Insets(22));
+        setTop(buildTopBar());
+        setCenter(buildCenter());
     }
 
-    private HBox topBar() {
-        Button back = new Button("← Indietro");
-        back.setOnAction(e -> AppNavigator.goDashboard());
+    private Node buildTopBar() {
+        Label title = new Label("BugBoard26");
+        title.getStyleClass().add("h1");
 
-        Label title = new Label("Modifica Account");
-        title.getStyleClass().add("title");
+        Label subtitle = new Label("Account");
+        subtitle.getStyleClass().add("muted");
+
+        VBox left = new VBox(2, title, subtitle);
 
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
-        HBox top = new HBox(12, back, spacer, title);
+        Button back = new Button("← Dashboard");
+        back.getStyleClass().add("btn-secondary");
+        back.setOnAction(e -> AppNavigator.goDashboard());
+
+        HBox top = new HBox(12, left, spacer, back);
         top.setAlignment(Pos.CENTER_LEFT);
         top.getStyleClass().add("topbar");
-        top.setPadding(new Insets(10));
+        top.setPadding(new Insets(14, 16, 14, 16));
         return top;
     }
 
-    private Pane content() {
-        TextField email = new TextField();
-        PasswordField psw = new PasswordField();
+    private Node buildCenter() {
+        VBox card = new VBox(14);
+        card.getStyleClass().add("section-card");
+        card.setPadding(new Insets(18));
+        card.setMaxWidth(520);
 
-        email.setPromptText("Nuova email");
-        psw.setPromptText("Nuova password");
+        Label h = new Label("Informazioni account");
+        h.getStyleClass().add("h2");
 
-        Button save = new Button("Salva");
-        save.getStyleClass().add("big-btn");
+        String email = Session.getEmail() == null ? "-" : Session.getEmail();
+        String role = Session.getRole() == null ? "-" : Session.getRole();
 
-        // SOLO FRONTEND: per ora simuliamo il salvataggio
-        save.setOnAction(e -> {
-            Alert a = new Alert(Alert.AlertType.INFORMATION);
-            a.setHeaderText("Frontend");
-            a.setContentText("Qui andrà la chiamata API per aggiornare account.\n"
-                    + "Email: " + email.getText());
-            a.showAndWait();
-        });
-
-        VBox box = new VBox(12,
-                new Label("Email"), email,
-                new Label("Password"), psw,
-                save
+        card.getChildren().addAll(
+                h,
+                kvRow("Email", email),
+                kvRow("Ruolo", role)
         );
-        box.setAlignment(Pos.CENTER);
-        box.setMaxWidth(420);
 
-        return new StackPane(box);
+        BorderPane.setAlignment(card, Pos.CENTER);
+        return card;
+    }
+
+    private Node kvRow(String k, String v) {
+        Label key = new Label(k);
+        key.getStyleClass().add("muted");
+
+        Label val = new Label(v);
+        val.getStyleClass().add("kv-value");
+
+        VBox box = new VBox(4, key, val);
+        box.getStyleClass().add("kv-row");
+        return box;
     }
 }

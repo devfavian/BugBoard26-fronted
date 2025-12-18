@@ -117,6 +117,10 @@ public class LoginView extends BorderPane {
 
             Session.setUserId(res.userID());
             Session.setRole(res.role());
+            Session.setToken(res.token());
+
+            Session.setEmail(email);
+
 
             // vai alla pagina principale
             AppNavigator.goDashboard();

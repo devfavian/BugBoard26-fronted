@@ -1,0 +1,199 @@
+package application;
+
+import javafx.concurrent.Task;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.control.*;
+import javafx.scene.layout.*;
+
+import java.util.List;
+
+public class IssuesListView extends BorderPane {
+
+    private final ListView<IssueItem> list = new ListView<>();
+    private final Label error = new Label();
+    private final ProgressIndicator spinner = new ProgressIndicator();
+    private final ComboBox<String> sortCombo = new ComboBox<>();
+
+    public IssuesListView() {
+        getStyleClass().add("root");
+
+        // --- Top bar
+        Button back = new Button("← Dashboard");
+        back.getStyleClass().add("btn-ghost");
+        back.setOnAction(e -> AppNavigator.goDashboard());
+
+        Label title = new Label("Issue");
+        title.getStyleClass().add("page-title");
+
+        Button profile = new Button("👤");
+        profile.getStyleClass().addAll("btn-ghost", "icon-btn");
+        profile.setOnAction(e -> AppNavigator.goAccount()); // se non ce l’hai, metti un Alert
+
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+
+        HBox top = new HBox(10, back, title, spacer, profile);
+        top.setAlignment(Pos.CENTER_LEFT);
+        top.setPadding(new Insets(14, 16, 8, 16));
+        top.getStyleClass().add("topbar");
+
+        // --- Controls row
+        sortCombo.getItems().addAll("createdAt", "updatedAt", "priority", "state", "type", "id");
+        sortCombo.setValue("createdAt");
+
+        Button refresh = new Button("⟳ Aggiorna");
+        refresh.getStyleClass().add("btn-secondary");
+        refresh.setOnAction(e -> load());
+
+        HBox controls = new HBox(10,
+                new Label("Ordina per:"),
+                sortCombo,
+                refresh
+        );
+        controls.setAlignment(Pos.CENTER_LEFT);
+        controls.setPadding(new Insets(0, 16, 10, 16));
+        controls.getStyleClass().add("subbar");
+
+        VBox header = new VBox(top, controls);
+        setTop(header);
+
+        // --- list
+        list.getStyleClass().add("issues-list");
+        list.setCellFactory(lv -> new IssueCell());
+        setCenter(list);
+
+        // --- bottom status
+        error.getStyleClass().add("error");
+        error.setManaged(false);
+        error.setVisible(false);
+
+        spinner.setMaxSize(22, 22);
+        spinner.setVisible(false);
+
+        HBox bottom = new HBox(10, spinner, error);
+        bottom.setPadding(new Insets(10, 16, 16, 16));
+        bottom.setAlignment(Pos.CENTER_LEFT);
+        setBottom(bottom);
+
+        load();
+    }
+
+    private void load() {
+        hideError();
+        setLoading(true);
+
+        Task<List<IssueItem>> task = new Task<>() {
+            @Override
+            protected List<IssueItem> call() throws Exception {
+                return IssueApi.getIssues(sortCombo.getValue());
+            }
+        };
+
+        task.setOnSucceeded(e -> {
+            setLoading(false);
+            list.getItems().setAll(task.getValue());
+        });
+
+        task.setOnFailed(e -> {
+            setLoading(false);
+            Throwable ex = task.getException();
+            showError("Errore caricamento issue: " + ex.getMessage());
+        });
+
+        Thread t = new Thread(task);
+        t.setDaemon(true);
+        t.start();
+    }
+
+    private void setLoading(boolean v) {
+        spinner.setVisible(v);
+        list.setDisable(v);
+    }
+
+    private void showError(String msg) {
+        error.setText(msg);
+        error.setManaged(true);
+        error.setVisible(true);
+    }
+
+    private void hideError() {
+        error.setText("");
+        error.setManaged(false);
+        error.setVisible(false);
+    }
+
+    // ---- cell card style
+    private static class IssueCell extends ListCell<IssueItem> {
+        @Override
+        protected void updateItem(IssueItem it, boolean empty) {
+            super.updateItem(it, empty);
+            if (empty || it == null) {
+                setText(null);
+                setGraphic(null);
+                return;
+            }
+
+            Label title = new Label(it.title());
+            title.getStyleClass().add("card-title");
+
+            String desc = it.description() == null ? "" : it.description();
+            if (desc.length() > 140) desc = desc.substring(0, 140) + "…";
+            Label description = new Label(desc);
+            description.getStyleClass().add("card-desc");
+            description.setWrapText(true);
+
+            HBox chips = new HBox(8,
+                    chip("TYPE: " + safe(it.type())),
+                    chip("STATE: " + safe(it.state())),
+                    chip("PRIO: " + safe(it.priority()))
+            );
+
+            boolean mine = Session.getUserId() != null && it.creatorId() != null
+                    && it.creatorId().longValue() == Session.getUserId().longValue();
+
+            boolean canEdit = Session.isAdmin() || mine;
+
+            Button editBtn = new Button(canEdit ? "✏ Modifica" : "🔒 Modifica");
+            editBtn.getStyleClass().add("btn-secondary");
+
+            if (!canEdit) {
+                editBtn.setDisable(true);
+                editBtn.getStyleClass().add("btn-locked");
+            } else {
+                editBtn.setOnAction(e -> {
+                    // TODO: qui poi apriamo ModifyIssueView e facciamo la chiamata di update
+                    Alert a = new Alert(Alert.AlertType.INFORMATION);
+                    a.setHeaderText("Modifica issue (UI)");
+                    a.setContentText("Issue ID: " + it.id());
+                    a.showAndWait();
+                });
+            }
+
+            Label owner = new Label(mine ? "🟢 Creata da te" : "⚪ Altra issue");
+            owner.getStyleClass().add("muted");
+
+            Region spacer = new Region();
+            HBox.setHgrow(spacer, Priority.ALWAYS);
+            HBox footer = new HBox(10, owner, spacer, editBtn);
+            footer.setAlignment(Pos.CENTER_LEFT);
+
+            VBox card = new VBox(10, title, description, chips, footer);
+            card.getStyleClass().add("issue-card");
+            card.setPadding(new Insets(12));
+
+            setText(null);
+            setGraphic(card);
+        }
+
+        private static Label chip(String s) {
+            Label l = new Label(s);
+            l.getStyleClass().add("chip");
+            return l;
+        }
+
+        private static String safe(String s) {
+            return (s == null || s.isBlank()) ? "-" : s;
+        }
+    }
+}
