@@ -13,7 +13,7 @@ public class IssuesListView extends BorderPane {
     private final ListView<IssueItem> list = new ListView<>();
     private final Label error = new Label();
     private final ProgressIndicator spinner = new ProgressIndicator();
-    private final ComboBox<String> sortCombo = new ComboBox<>();
+    private final ComboBox<SortOpt> sortCombo = new ComboBox<>();
 
     public IssuesListView() {
         getStyleClass().add("root");
@@ -39,8 +39,12 @@ public class IssuesListView extends BorderPane {
         top.getStyleClass().add("topbar");
 
         // --- Controls row
-        sortCombo.getItems().addAll("createdAt", "updatedAt", "priority", "state", "type", "id");
-        sortCombo.setValue("createdAt");
+        sortCombo.getItems().addAll(
+                new SortOpt("Data creazione", "createdAt"),
+                new SortOpt("Priorità", "priority"),
+                new SortOpt("Stato", "state")
+        );
+        sortCombo.setValue(sortCombo.getItems().getFirst());
 
         Button refresh = new Button("⟳ Aggiorna");
         refresh.getStyleClass().add("btn-secondary");
@@ -86,7 +90,7 @@ public class IssuesListView extends BorderPane {
         Task<List<IssueItem>> task = new Task<>() {
             @Override
             protected List<IssueItem> call() throws Exception {
-                return IssueApi.getIssues(sortCombo.getValue());
+                return IssueApi.getIssues(sortCombo.getValue().api());
             }
         };
 
@@ -98,7 +102,14 @@ public class IssuesListView extends BorderPane {
         task.setOnFailed(e -> {
             setLoading(false);
             Throwable ex = task.getException();
-            showError("Errore caricamento issue: " + ex.getMessage());
+            if (ex instanceof IssueApi.UnauthorizedException) {
+                showError("Sessione non valida. Effettua di nuovo il login.");
+                AppNavigator.goLogin();
+            } else if (ex instanceof IssueApi.ForbiddenException) {
+                showError("Accesso negato: " + ex.getMessage());
+            } else {
+                showError("Errore caricamento issue: " + ex.getMessage());
+            }
         });
 
         Thread t = new Thread(task);
@@ -121,6 +132,10 @@ public class IssuesListView extends BorderPane {
         error.setText("");
         error.setManaged(false);
         error.setVisible(false);
+    }
+
+    private record SortOpt(String label, String api) {
+        @Override public String toString() { return label; }
     }
 
     // ---- cell card style

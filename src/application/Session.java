@@ -28,6 +28,18 @@ public final class Session {
     // --- token (JWT) ---
     public static String getToken() { return token; }
     public static void setToken(String t) { token = t; }
+    /**
+     * Restituisce sempre il token con prefisso "Bearer ...".
+     * Se il token non è disponibile, ritorna null.
+     */
+    public static String getBearerTokenOrNull() {
+        if (token == null || token.isBlank()) return null;
+        String tok = token.trim();
+        if (!tok.regionMatches(true, 0, "Bearer ", 0, "Bearer ".length())) {
+            tok = "Bearer " + tok;
+        }
+        return tok;
+    }
 
     public static boolean isLoggedIn() {
         return token != null && !token.isBlank() && userId != null;

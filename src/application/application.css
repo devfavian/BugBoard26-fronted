@@ -1,100 +1,182 @@
 /* =========================
-   BugBoard26 - Modern Dark UI
-   (single source of truth)
+   BugBoard26 - Modern LIGHT UI
+   (testi NERI + fix ComboBox/TextArea)
    ========================= */
 
 /* ----- App background + font ----- */
 .root {
-    -fx-background-color: linear-gradient(to bottom right, #0b1220, #111a2f);
-    -fx-font-family: "System";
+    -fx-background-color: linear-gradient(to bottom right, #eef2ff, #e0f2fe);
+    -fx-font-family: "SF Pro Text", "Segoe UI", "Inter", "System";
+    -fx-text-fill: #0f172a;
 }
 
 /* ----- Typography helpers ----- */
 .h1 {
     -fx-font-size: 22px;
-    -fx-font-weight: 800;
-    -fx-text-fill: white;
+    -fx-font-weight: 900;
+    -fx-text-fill: #111827;
 }
 .h2 {
     -fx-font-size: 18px;
-    -fx-font-weight: 700;
-    -fx-text-fill: rgba(255,255,255,0.92);
+    -fx-font-weight: 800;
+    -fx-text-fill: #111827;
 }
 .muted {
-    -fx-text-fill: rgba(255,255,255,0.65);
+    -fx-text-fill: rgba(15,23,42,0.72);
 }
 
-/* Login title/subtitle (nel tuo LoginView usi "title" e "subtitle") */
+/* Login title/subtitle */
 .title {
-    -fx-font-size: 22px;
+    -fx-font-size: 24px;
     -fx-font-weight: 900;
-    -fx-text-fill: white;
+    -fx-text-fill: #111827;
 }
 .subtitle {
-    -fx-text-fill: rgba(255,255,255,0.70);
+    -fx-text-fill: rgba(17,24,39,0.60);
     -fx-font-size: 12.5px;
 }
 
 /* ----- Topbar ----- */
 .topbar {
-    -fx-background-color: rgba(255,255,255,0.06);
+    -fx-background-color: rgba(255,255,255,0.96);
     -fx-background-radius: 16;
-    -fx-border-color: rgba(255,255,255,0.10);
+    -fx-border-color: rgba(15,23,42,0.08);
     -fx-border-radius: 16;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.35), 24, 0.20, 0, 10);
+    -fx-effect: dropshadow(gaussian, rgba(15,23,42,0.12), 20, 0.18, 0, 8);
 }
 
-/* ----- Generic "Card" container (login + pages) ----- */
-.card {
-    -fx-background-color: rgba(255,255,255,0.06);
+/* subbar sotto topbar (ordina per...) */
+.subbar {
+    -fx-padding: 8 16 12 16;
+}
+
+/* ----- Generic Card container ----- */
+.card, .issue-card, .form-card, .section-card {
+    -fx-background-color: rgba(255,255,255,0.95);
     -fx-background-radius: 18;
-    -fx-border-color: rgba(255,255,255,0.10);
+    -fx-border-color: rgba(15,23,42,0.08);
     -fx-border-radius: 18;
-    -fx-padding: 18;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.35), 26, 0.18, 0, 10);
+    -fx-effect: dropshadow(gaussian, rgba(15,23,42,0.10), 22, 0.18, 0, 8);
 }
 
 /* ----- Labels in forms ----- */
-.label {
-    -fx-text-fill: rgba(255,255,255,0.80);
-    -fx-font-weight: 700;
+.label, .field-label {
+    -fx-text-fill: rgba(15,23,42,0.86);
+    -fx-font-weight: 800;
     -fx-font-size: 12px;
 }
 
-/* ----- Text fields ----- */
+/* ----- INPUTS: testo NERO + sfondo chiaro ----- */
 .text-field,
-.password-field {
-    -fx-background-color: rgba(255,255,255,0.06);
+.password-field,
+.text-area,
+.combo-box-base {
+    -fx-background-color: white;
     -fx-background-radius: 12;
-    -fx-border-color: rgba(255,255,255,0.12);
+    -fx-border-color: rgba(15,23,42,0.12);
     -fx-border-radius: 12;
-    -fx-text-fill: rgba(255,255,255,0.92);
-    -fx-prompt-text-fill: rgba(255,255,255,0.45);
-    -fx-highlight-fill: rgba(120, 130, 255, 0.35);
-    -fx-highlight-text-fill: white;
+
+    -fx-text-fill: #0f172a;
+    -fx-prompt-text-fill: rgba(15,23,42,0.5);
+
     -fx-padding: 10 12 10 12;
 }
 
 .text-field:focused,
-.password-field:focused {
-    -fx-border-color: rgba(120, 130, 255, 0.70);
-    -fx-effect: dropshadow(gaussian, rgba(120, 130, 255, 0.22), 18, 0.18, 0, 0);
+.password-field:focused,
+.text-area:focused,
+.combo-box-base:focused {
+    -fx-border-color: rgba(37, 99, 235, 0.6);
+    -fx-effect: dropshadow(gaussian, rgba(37,99,235,0.16), 16, 0.18, 0, 0);
 }
 
-/* ----- Buttons (default) ----- */
-.button {
-    -fx-background-color: rgba(120, 130, 255, 0.90);
-    -fx-text-fill: white;
+/* TextArea: sfondo interno + testo */
+.text-area {
+    -fx-control-inner-background: white;
+}
+.text-area .content {
+    -fx-background-color: transparent;
+}
+.text-area .text {
+    -fx-fill: #111827;
+}
+
+/* ComboBox: testo selezionato */
+.combo-box-base .list-cell {
+    -fx-text-fill: #111827;
+    -fx-background-color: transparent;
+}
+
+/* Popup del menu a tendina */
+.combo-box-popup .list-view {
+    -fx-background-color: white;
+    -fx-background-radius: 12;
+    -fx-border-color: rgba(17,24,39,0.12);
+    -fx-border-radius: 12;
+}
+
+.combo-box-popup .list-view .list-cell {
+    -fx-text-fill: #111827;
+    -fx-background-color: transparent;
+}
+
+.combo-box-popup .list-view .list-cell:hover {
+    -fx-background-color: rgba(17,24,39,0.06);
+}
+
+.combo-box-popup .list-view .list-cell:filled:selected,
+.combo-box-popup .list-view .list-cell:filled:selected:hover {
+    -fx-background-color: rgba(37,99,235,0.15);
+}
+
+/* ChoiceBox usata nei form */
+.choice-box.bb-choice {
+    -fx-background-color: white;
+    -fx-background-radius: 12;
+    -fx-border-color: rgba(15,23,42,0.12);
+    -fx-border-radius: 12;
+    -fx-padding: 8 12 8 12;
+    -fx-cursor: hand;
+}
+.choice-box.bb-choice:hover {
+    -fx-border-color: rgba(37,99,235,0.35);
+}
+.choice-box.bb-choice > .label {
+    -fx-text-fill: #0f172a;
     -fx-font-weight: 800;
+}
+.choice-box.bb-choice > .open-button {
+    -fx-background-color: transparent;
+}
+.choice-box.bb-choice > .open-button > .arrow {
+    -fx-background-color: #2563eb;
+}
+.choice-box .context-menu {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 12;
+    -fx-border-color: rgba(15,23,42,0.12);
+    -fx-border-radius: 12;
+    -fx-effect: dropshadow(gaussian, rgba(15,23,42,0.12), 18, 0.18, 0, 6);
+}
+.choice-box .menu-item:focused {
+    -fx-background-color: rgba(37,99,235,0.12);
+    -fx-text-fill: #0f172a;
+}
+
+/* ----- Buttons ----- */
+.button {
+    -fx-background-color: #2563eb; /* vivid blue */
+    -fx-text-fill: white;
+    -fx-font-weight: 900;
     -fx-background-radius: 12;
     -fx-padding: 10 14 10 14;
     -fx-cursor: hand;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 14, 0.15, 0, 6);
+    -fx-effect: dropshadow(gaussian, rgba(37,99,235,0.22), 14, 0.15, 0, 6);
 }
 
 .button:hover {
-    -fx-background-color: rgba(120, 130, 255, 1.0);
-    -fx-effect: dropshadow(gaussian, rgba(120, 130, 255, 0.25), 18, 0.18, 0, 8);
+    -fx-background-color: #1d4ed8;
+    -fx-effect: dropshadow(gaussian, rgba(37,99,235,0.28), 18, 0.18, 0, 8);
     -fx-translate-y: -1;
 }
 
@@ -109,95 +191,114 @@
     -fx-effect: none;
 }
 
-/* Secondary button (per "Indietro", "Annulla", ecc.) */
+/* Secondary */
 .btn-secondary {
-    -fx-background-color: rgba(255,255,255,0.08);
-    -fx-text-fill: rgba(255,255,255,0.88);
-    -fx-border-color: rgba(255,255,255,0.12);
+    -fx-background-color: rgba(15,23,42,0.06);
+    -fx-text-fill: #0f172a;
+    -fx-border-color: rgba(15,23,42,0.10);
     -fx-border-radius: 12;
     -fx-background-radius: 12;
-}
-.btn-secondary:hover {
-    -fx-background-color: rgba(255,255,255,0.12);
-}
-
-/* Disabled action button (es. "Modifica" sbarrato sulle issue non tue) */
-.btn-disabled {
-    -fx-background-color: rgba(255,255,255,0.05);
-    -fx-text-fill: rgba(255,255,255,0.55);
-    -fx-border-color: rgba(255,255,255,0.10);
-    -fx-border-radius: 12;
-    -fx-background-radius: 12;
-    -fx-strikethrough: true; /* funziona su Labeled (Button/Label) */
-}
-
-/* ----- Error label ----- */
-.error {
-    -fx-text-fill: #ff6b6b;
     -fx-font-weight: 800;
 }
-
-/* ----- Spinner ----- */
-.progress-indicator {
-    -fx-progress-color: rgba(120, 130, 255, 0.95);
+.btn-secondary:hover {
+    -fx-background-color: rgba(37,99,235,0.10);
 }
 
-/* ----- Avatar icon button ----- */
+/* Ghost */
+.btn-ghost {
+    -fx-background-color: transparent;
+    -fx-text-fill: #0f172a;
+    -fx-font-weight: 900;
+    -fx-padding: 8 10 8 10;
+    -fx-cursor: hand;
+}
+.btn-ghost:hover {
+    -fx-background-color: rgba(17,24,39,0.06);
+    -fx-background-radius: 12;
+}
+
+/* Avatar icon button */
 .icon-btn {
-    -fx-background-color: rgba(255,255,255,0.06);
+    -fx-background-color: rgba(15,23,42,0.06);
     -fx-background-radius: 999;
     -fx-padding: 10;
     -fx-cursor: hand;
-    -fx-border-color: rgba(255,255,255,0.10);
+    -fx-border-color: rgba(15,23,42,0.10);
     -fx-border-radius: 999;
 }
 .icon-btn:hover {
-    -fx-background-color: rgba(255,255,255,0.10);
+    -fx-background-color: rgba(37,99,235,0.10);
 }
 
-/* ----- Dashboard grid ----- */
-.card-grid {
-    -fx-padding: 6 0 0 0;
-}
-
-/* ----- Dashboard tile cards ----- */
-.card-tile {
-    -fx-background-color: rgba(255,255,255,0.06);
-    -fx-background-radius: 18;
-    -fx-border-color: rgba(255,255,255,0.10);
-    -fx-border-radius: 18;
-    -fx-padding: 18;
-    -fx-cursor: hand;
-    -fx-alignment: top-left;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.40), 26, 0.18, 0, 10);
-}
-
-.card-tile:hover {
-    -fx-border-color: rgba(120, 130, 255, 0.55);
-    -fx-effect: dropshadow(gaussian, rgba(120, 130, 255, 0.25), 32, 0.22, 0, 12);
-    -fx-translate-y: -2;
-}
-
-.card-title {
-    -fx-font-size: 16px;
+/* ----- Errors ----- */
+.error {
+    -fx-text-fill: #dc2626;
     -fx-font-weight: 900;
-    -fx-text-fill: rgba(255,255,255,0.92);
 }
 
-.card-subtitle {
-    -fx-text-fill: rgba(255,255,255,0.70);
-    -fx-font-size: 12.5px;
+/* ----- Issues list ----- */
+.issues-list {
+    -fx-background-color: transparent;
 }
-
-/* ----- Icons ----- */
-.icon-emoji { -fx-font-size: 34px; }
-.icon-img { -fx-opacity: 0.95; }
-
-/* ----- (opzionale) ListView styling per IssuesListView ----- */
 .list-view {
     -fx-background-color: transparent;
 }
 .list-cell {
     -fx-background-color: transparent;
-    -fx-padding: 8 0 8 0;
+    -fx-padding: 10 16 10 16;
+}
+
+/* issue card inner */
+.issue-card {
+    -fx-padding: 12;
+}
+
+/* Card texts in IssueCell */
+.card-title {
+    -fx-font-size: 16px;
+    -fx-font-weight: 900;
+    -fx-text-fill: #0f172a;
+}
+.card-desc {
+    -fx-text-fill: rgba(15,23,42,0.78);
+    -fx-font-size: 12.5px;
+}
+
+/* Chips */
+.chip {
+    -fx-background-color: rgba(37,99,235,0.12);
+    -fx-text-fill: rgba(15,23,42,0.85);
+    -fx-font-weight: 800;
+    -fx-padding: 5 10 5 10;
+    -fx-background-radius: 999;
+    -fx-border-color: rgba(37,99,235,0.20);
+    -fx-border-radius: 999;
+}
+
+/* Locked button (per issue non tua) */
+.btn-locked {
+    -fx-background-color: rgba(17,24,39,0.05);
+    -fx-text-fill: rgba(17,24,39,0.55);
+    -fx-border-color: rgba(17,24,39,0.10);
+    -fx-border-radius: 12;
+    -fx-background-radius: 12;
+    -fx-strikethrough: true;
+}
+
+/* Page title usato in IssuesListView */
+.page-title {
+    -fx-font-size: 18px;
+    -fx-font-weight: 900;
+    -fx-text-fill: #0f172a;
+}
+
+.file-muted {
+    -fx-text-fill: rgba(15,23,42,0.65);
+}
+
+.img-preview {
+    -fx-background-color: rgba(15,23,42,0.04);
+    -fx-border-color: rgba(15,23,42,0.08);
+    -fx-border-radius: 12;
+    -fx-padding: 8;
 }

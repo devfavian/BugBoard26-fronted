@@ -24,8 +24,9 @@ public final class AppNavigator {
     }
 
     public static void goReportIssue() {
-        scene.setRoot(new PlaceholderView("Segnala Issue"));
+    scene.setRoot(new ReportIssueView());
     }
+
 
     public static void goViewIssues() {
         scene.setRoot(new PlaceholderView("Visualizza Issue"));

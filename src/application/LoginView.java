@@ -106,8 +106,8 @@ public class LoginView extends BorderPane {
         Task<LoginResponse> task = new Task<>() {
             @Override
             protected LoginResponse call() throws Exception {
-                // backend: POST /bugboard/users/login
-                return AuthApi.login("http://localhost:8080", email, psw);
+                // backend: POST /bugboard/login
+                return AuthApi.login(ApiConfig.BASE_URL, email, psw);
             }
         };
 
@@ -117,14 +117,33 @@ public class LoginView extends BorderPane {
 
             Session.setUserId(res.userID());
             Session.setRole(res.role());
-            Session.setToken(res.token());
-
             Session.setEmail(email);
 
+            // token: lo rendiamo SEMPRE "Bearer ..."
+            String tok = res.token();
+            if (tok != null && !tok.isBlank() && !tok.toLowerCase().startsWith("bearer ")) {
+                tok = "Bearer " + tok;
+            }
+            Session.setToken(tok);
 
-            // vai alla pagina principale
+            System.out.println("=== LOGIN OK ===");
+            System.out.println("userId = " + Session.getUserId());
+            System.out.println("role   = " + Session.getRole());
+            System.out.println("email  = " + Session.getEmail());
+            String t = Session.getToken();
+            System.out.println("token  = " + (t == null ? "null" : (t.length() > 25 ? t.substring(0, 25) + "...(len=" + t.length() + ")" : t)));
+            System.out.println("================");
+            System.out.println("FULL TOKEN = " + Session.getToken());
+
+            
+
+            System.out.println("JWT HEADER  = " + JwtDebug.header(Session.getToken()));
+            System.out.println("JWT PAYLOAD = " + JwtDebug.payload(Session.getToken()));
+
+
             AppNavigator.goDashboard();
         });
+
 
 
         task.setOnFailed(ev -> {
