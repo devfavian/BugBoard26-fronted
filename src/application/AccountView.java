@@ -43,7 +43,7 @@ public class AccountView extends BorderPane {
     private Node buildCenter() {
         VBox card = new VBox(14);
         card.getStyleClass().add("section-card");
-        card.setPadding(new Insets(18));
+        card.setPadding(new Insets(24));
         card.setMaxWidth(520);
 
         Label h = new Label("Informazioni account");
@@ -57,6 +57,18 @@ public class AccountView extends BorderPane {
                 kvRow("Email", email),
                 kvRow("Ruolo", role)
         );
+
+        Button logout = new Button("Disconnetti");
+        logout.getStyleClass().add("btn-secondary");
+        logout.setOnAction(e -> {
+            Session.clear();
+            AppNavigator.goLogin();
+        });
+
+        HBox actions = new HBox(logout);
+        actions.setAlignment(Pos.CENTER_LEFT);
+        actions.setPadding(new Insets(6, 0, 0, 0));
+        card.getChildren().add(actions);
 
         BorderPane.setAlignment(card, Pos.CENTER);
         return card;

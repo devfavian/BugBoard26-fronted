@@ -100,8 +100,9 @@ public class AdminCreateUserView extends BorderPane {
     private Node buildForm() {
         Label hint = new Label("Solo admin: crea un nuovo account con ruolo specifico.");
         hint.getStyleClass().add("muted");
+        hint.setWrapText(true);
 
-        VBox card = new VBox(12,
+        VBox card = new VBox(20,
                 hint,
                 field("Email", emailField),
                 field("Password", pswField),
@@ -110,7 +111,8 @@ public class AdminCreateUserView extends BorderPane {
                 errorLabel
         );
         card.getStyleClass().add("form-card");
-        card.setMaxWidth(520);
+        card.setMaxWidth(600);
+        card.setPadding(new Insets(24));
 
         VBox wrap = new VBox(card);
         wrap.setAlignment(Pos.CENTER);
@@ -120,7 +122,8 @@ public class AdminCreateUserView extends BorderPane {
     private Node field(String label, Control control) {
         Label l = new Label(label);
         l.getStyleClass().add("field-label");
-        VBox box = new VBox(6, l, control);
+        control.setMaxWidth(Double.MAX_VALUE);
+        VBox box = new VBox(8, l, control);
         return box;
     }
 

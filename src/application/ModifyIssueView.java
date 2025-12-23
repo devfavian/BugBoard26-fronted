@@ -141,8 +141,9 @@ public class ModifyIssueView extends BorderPane {
     private Node buildForm() {
         Label hint = new Label("Aggiorna i campi desiderati. Se scegli una nuova immagine verrà sostituita.");
         hint.getStyleClass().add("muted");
+        hint.setWrapText(true);
 
-        VBox card = new VBox(12,
+        VBox card = new VBox(20,
                 hint,
                 field("Titolo", titleField),
                 field("Descrizione", descArea),
@@ -156,7 +157,8 @@ public class ModifyIssueView extends BorderPane {
                 errorLabel
         );
         card.getStyleClass().add("form-card");
-        card.setMaxWidth(740);
+        card.setMaxWidth(600);
+        card.setPadding(new Insets(24));
 
         VBox wrap = new VBox(card);
         wrap.setAlignment(Pos.CENTER);
@@ -166,12 +168,13 @@ public class ModifyIssueView extends BorderPane {
     private Node field(String label, Control control) {
         Label l = new Label(label);
         l.getStyleClass().add("field-label");
-        VBox box = new VBox(6, l, control);
+        control.setMaxWidth(Double.MAX_VALUE);
+        VBox box = new VBox(8, l, control);
         return box;
     }
 
     private Node twoCols(Node left, Node right) {
-        HBox row = new HBox(14, left, right);
+        HBox row = new HBox(20, left, right);
         row.setAlignment(Pos.CENTER_LEFT);
         HBox.setHgrow(left, Priority.ALWAYS);
         HBox.setHgrow(right, Priority.ALWAYS);
@@ -180,6 +183,10 @@ public class ModifyIssueView extends BorderPane {
 
     private Node imagePickerRow() {
         fileLabel.getStyleClass().add("file-muted");
+        fileLabel.setWrapText(true);
+        fileLabel.setMaxWidth(360);
+        pickImgBtn.setWrapText(true);
+        pickImgBtn.setPrefWidth(200);
         HBox row = new HBox(12, pickImgBtn, fileLabel);
         row.setAlignment(Pos.CENTER_LEFT);
         return row;

@@ -52,7 +52,7 @@ public class LoginView extends BorderPane {
         HBox actions = new HBox(10, loginBtn, spinner);
         actions.setAlignment(Pos.CENTER_LEFT);
 
-        VBox form = new VBox(10,
+        VBox form = new VBox(20,
                 labeled("Email", emailField),
                 labeled("Password", pswField),
                 actions,
@@ -76,7 +76,8 @@ public class LoginView extends BorderPane {
     private VBox labeled(String label, Control field) {
         Label l = new Label(label);
         l.getStyleClass().add("label");
-        VBox box = new VBox(6, l, field);
+        field.setMaxWidth(Double.MAX_VALUE);
+        VBox box = new VBox(8, l, field);
         return box;
     }
 

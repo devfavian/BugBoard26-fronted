@@ -1,5 +1,7 @@
 package application;
 
+import javafx.animation.Interpolator;
+import javafx.animation.RotateTransition;
 import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -7,8 +9,10 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.*;
+import javafx.scene.shape.SVGPath;
 import javafx.stage.Stage;
 import javafx.stage.Window;
+import javafx.util.Duration;
 
 import java.util.List;
 
@@ -50,21 +54,37 @@ public class IssuesListView extends BorderPane {
         );
         sortCombo.setValue(sortCombo.getItems().getFirst());
 
-        Label refreshIcon = new Label("⟳");
+        SVGPath refreshIcon = new SVGPath();
+        refreshIcon.setContent("M12 2a10 10 0 1 0 10 10h-2a8 8 0 1 1-8-8v2l4-3-4-3v2z");
         refreshIcon.getStyleClass().add("refresh-icon");
-        Button refresh = new Button("Aggiorna");
+
+        Button refresh = new Button();
         refresh.setGraphic(refreshIcon);
-        refresh.setContentDisplay(ContentDisplay.LEFT);
-        refresh.setGraphicTextGap(8);
-        refresh.getStyleClass().add("btn-refresh");
+        refresh.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+        refresh.getStyleClass().add("btn-refresh-icon");
+        refresh.setTooltip(new Tooltip("Aggiorna"));
         refresh.setOnAction(e -> load());
 
-        HBox controls = new HBox(10,
+        RotateTransition rotate = new RotateTransition(Duration.millis(300), refreshIcon);
+        rotate.setInterpolator(Interpolator.EASE_BOTH);
+        refresh.setOnMouseEntered(e -> {
+            rotate.stop();
+            rotate.setToAngle(180);
+            rotate.playFromStart();
+        });
+        refresh.setOnMouseExited(e -> {
+            rotate.stop();
+            rotate.setToAngle(0);
+            rotate.playFromStart();
+        });
+
+        HBox controls = new HBox(8,
                 new Label("Ordina per:"),
                 sortCombo,
                 refresh
         );
         controls.setAlignment(Pos.CENTER_LEFT);
+        HBox.setMargin(refresh, new Insets(0, 0, 0, 12));
         controls.setPadding(new Insets(0, 16, 10, 16));
         controls.getStyleClass().add("subbar");
 

@@ -83,10 +83,10 @@ public class IssueDetailView extends BorderPane {
 
         VBox attachment = buildAttachment();
 
-        VBox card = new VBox(14, title, desc, chips, meta, attachment);
+        VBox card = new VBox(20, title, desc, chips, meta, attachment);
         card.getStyleClass().addAll("section-card", "detail-card");
-        card.setPadding(new Insets(18));
-        card.setMaxWidth(760);
+        card.setPadding(new Insets(24));
+        card.setMaxWidth(600);
 
         VBox wrap = new VBox(card);
         wrap.setAlignment(Pos.CENTER);
