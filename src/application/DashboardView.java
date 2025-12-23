@@ -52,62 +52,70 @@ public class DashboardView extends BorderPane {
     }
 
     private Node buildCenter() {
-        Label welcome = new Label("Cosa vuoi fare?");
-        welcome.getStyleClass().add("h2");
-
-        Label role = new Label("Ruolo: " + (Session.getRole() == null ? "?" : Session.getRole()));
-        role.getStyleClass().add("muted");
-
-        VBox header = new VBox(4, welcome, role);
-        header.setAlignment(Pos.CENTER);
-
         FlowPane grid = new FlowPane();
         grid.getStyleClass().add("card-grid");
         grid.setHgap(16);
         grid.setVgap(16);
         grid.setAlignment(Pos.CENTER);
+        grid.setPrefWrapLength(760);
 
         Button report = card(
                 "Segnala Issue",
-                "Crea una nuova segnalazione",
+                "Crea una nuova segnalazione con dettagli e priorità",
                 loadIcon("icons/report.png", "📝", 42),
-                AppNavigator::goReportIssue
+                AppNavigator::goReportIssue,
+                "card-report"
         );
 
         Button view = card(
                 "Visualizza Issue",
                 "Vedi tutte le issue e modifica solo le tue",
                 loadIcon("icons/view.png", "📋", 42),
-                AppNavigator::goIssuesList   // <-- IMPORTANT: qui deve portare alla lista
+                AppNavigator::goIssuesList,   // <-- IMPORTANT: qui deve portare alla lista
+                "card-view"
         );
 
-        // solo due cards
         grid.getChildren().addAll(report, view);
 
-        VBox center = new VBox(18, header, grid);
+        if (Session.isAdmin()) {
+            Button createUser = card(
+                    "Crea Utenza",
+                    "Genera un account per utenti o admin",
+                    loadIcon("icons/user-add.png", "➕", 42),
+                    AppNavigator::goAdminCreateUser,
+                    "card-admin"
+            );
+            grid.getChildren().add(createUser);
+        }
+
+        VBox center = new VBox(18, grid);
         center.setAlignment(Pos.CENTER);
         return center;
     }
 
-    private Button card(String title, String subtitle, Node icon, Runnable action) {
+    private Button card(String title, String subtitle, Node icon, Runnable action, String... extraClasses) {
         Label t = new Label(title);
-        t.getStyleClass().add("card-title");
+        t.getStyleClass().add("dash-card-title");
 
         Label s = new Label(subtitle);
-        s.getStyleClass().add("card-subtitle");
+        s.getStyleClass().add("dash-card-subtitle");
         s.setWrapText(true);
 
+        icon.getStyleClass().add("dash-card-icon");
         VBox content = new VBox(10, icon, t, s);
         content.setAlignment(Pos.TOP_LEFT);
 
         Button b = new Button();
         b.getStyleClass().add("card-tile");
+        if (extraClasses != null) {
+            b.getStyleClass().addAll(extraClasses);
+        }
         b.setGraphic(content);
         b.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
         b.setOnAction(e -> action.run());
         b.setMaxWidth(360);
         b.setPrefWidth(320);
-        b.setPrefHeight(170);
+        b.setPrefHeight(185);
 
         return b;
     }

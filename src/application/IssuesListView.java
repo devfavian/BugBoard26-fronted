@@ -3,8 +3,12 @@ package application;
 import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.input.MouseButton;
 import javafx.scene.layout.*;
+import javafx.stage.Stage;
+import javafx.stage.Window;
 
 import java.util.List;
 
@@ -46,8 +50,13 @@ public class IssuesListView extends BorderPane {
         );
         sortCombo.setValue(sortCombo.getItems().getFirst());
 
-        Button refresh = new Button("⟳ Aggiorna");
-        refresh.getStyleClass().add("btn-secondary");
+        Label refreshIcon = new Label("⟳");
+        refreshIcon.getStyleClass().add("refresh-icon");
+        Button refresh = new Button("Aggiorna");
+        refresh.setGraphic(refreshIcon);
+        refresh.setContentDisplay(ContentDisplay.LEFT);
+        refresh.setGraphicTextGap(8);
+        refresh.getStyleClass().add("btn-refresh");
         refresh.setOnAction(e -> load());
 
         HBox controls = new HBox(10,
@@ -138,8 +147,29 @@ public class IssuesListView extends BorderPane {
         @Override public String toString() { return label; }
     }
 
+    private void openDetails(IssueItem item) {
+        if (item == null || getScene() == null) return;
+
+        IssueDetailView root = new IssueDetailView(item);
+        Scene scene = new Scene(root, 720, 640);
+        scene.getStylesheets().add(
+                getClass().getResource("application.css").toExternalForm()
+        );
+
+        Stage stage = new Stage();
+        stage.setTitle("Issue #" + (item.id() == null ? "-" : item.id()));
+        Window owner = getScene().getWindow();
+        if (owner != null) {
+            stage.initOwner(owner);
+        }
+        stage.setMinWidth(620);
+        stage.setMinHeight(520);
+        stage.setScene(scene);
+        stage.show();
+    }
+
     // ---- cell card style
-    private static class IssueCell extends ListCell<IssueItem> {
+    private class IssueCell extends ListCell<IssueItem> {
         @Override
         protected void updateItem(IssueItem it, boolean empty) {
             super.updateItem(it, empty);
@@ -177,11 +207,7 @@ public class IssuesListView extends BorderPane {
                 editBtn.getStyleClass().add("btn-locked");
             } else {
                 editBtn.setOnAction(e -> {
-                    // TODO: qui poi apriamo ModifyIssueView e facciamo la chiamata di update
-                    Alert a = new Alert(Alert.AlertType.INFORMATION);
-                    a.setHeaderText("Modifica issue (UI)");
-                    a.setContentText("Issue ID: " + it.id());
-                    a.showAndWait();
+                    AppNavigator.goModifyIssue(it);
                 });
             }
 
@@ -196,6 +222,12 @@ public class IssuesListView extends BorderPane {
             VBox card = new VBox(10, title, description, chips, footer);
             card.getStyleClass().add("issue-card");
             card.setPadding(new Insets(12));
+            card.getStyleClass().add("issue-card-clickable");
+            card.setOnMouseClicked(e -> {
+                if (e.getButton() != MouseButton.PRIMARY) return;
+                if (isInsideButton(e.getTarget())) return;
+                openDetails(it);
+            });
 
             setText(null);
             setGraphic(card);
@@ -209,6 +241,16 @@ public class IssuesListView extends BorderPane {
 
         private static String safe(String s) {
             return (s == null || s.isBlank()) ? "-" : s;
+        }
+
+        private static boolean isInsideButton(Object target) {
+            if (!(target instanceof javafx.scene.Node node)) return false;
+            javafx.scene.Node cur = node;
+            while (cur != null) {
+                if (cur instanceof ButtonBase) return true;
+                cur = cur.getParent();
+            }
+            return false;
         }
     }
 }

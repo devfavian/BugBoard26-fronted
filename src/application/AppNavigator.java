@@ -24,7 +24,15 @@ public final class AppNavigator {
     }
 
     public static void goReportIssue() {
-    scene.setRoot(new ReportIssueView());
+        scene.setRoot(new ReportIssueView());
+    }
+
+    public static void goAdminCreateUser() {
+        scene.setRoot(new AdminCreateUserView());
+    }
+
+    public static void goModifyIssue(IssueItem item) {
+        scene.setRoot(new ModifyIssueView(item));
     }
 
 
@@ -36,6 +44,8 @@ public final class AppNavigator {
         scene.setRoot(new PlaceholderView("Modifica Issue"));
     }
 
-    public static void goIssuesList() { scene.setRoot(new IssuesListView()); }
+    public static void goIssuesList() {
+        scene.setRoot(new IssuesListView());
+    }
 
 }

@@ -4,16 +4,29 @@ import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.control.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.Control;
+import javafx.scene.control.Label;
+import javafx.scene.control.ProgressIndicator;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.*;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 
 import java.io.File;
 import java.io.InputStream;
 
-public class ReportIssueView extends BorderPane {
+public class ModifyIssueView extends BorderPane {
+
+    private final IssueItem item;
 
     private final TextField titleField = new TextField();
     private final TextArea descArea = new TextArea();
@@ -21,21 +34,41 @@ public class ReportIssueView extends BorderPane {
     private final ChoiceBox<TypeOpt> typeBox = new ChoiceBox<>();
     private final ChoiceBox<PriorityOpt> priorityBox = new ChoiceBox<>();
 
-    private final Button pickImgBtn = new Button("Allega immagine");
+    private final Button pickImgBtn = new Button("Sostituisci immagine");
     private final Label fileLabel = new Label("Nessun file selezionato");
     private final ImageView preview = new ImageView();
 
     private File selectedImage = null;
 
-    private final Button submitBtn = new Button("Invia segnalazione");
+    private final Button submitBtn = new Button("Salva modifiche");
     private final Button cancelBtn = new Button("Indietro");
     private final ProgressIndicator spinner = new ProgressIndicator();
 
     private final Label errorLabel = new Label();
 
-    public ReportIssueView() {
+    public ModifyIssueView(IssueItem item) {
+        this.item = item;
+
         getStyleClass().add("root");
         setPadding(new Insets(22));
+
+        if (item == null || item.id() == null) {
+            Alert a = new Alert(Alert.AlertType.ERROR);
+            a.setHeaderText("Issue non valida");
+            a.setContentText("Impossibile modificare questa issue.");
+            a.showAndWait();
+            AppNavigator.goIssuesList();
+            return;
+        }
+
+        if (!canEdit(item)) {
+            Alert a = new Alert(Alert.AlertType.ERROR);
+            a.setHeaderText("Accesso negato");
+            a.setContentText("Puoi modificare solo le issue create da te.");
+            a.showAndWait();
+            AppNavigator.goIssuesList();
+            return;
+        }
 
         setTop(buildTopBar());
         setCenter(buildForm());
@@ -48,18 +81,20 @@ public class ReportIssueView extends BorderPane {
         errorLabel.setVisible(false);
 
         typeBox.getItems().addAll(TypeOpt.values());
-        typeBox.setValue(TypeOpt.BUG);
+        typeBox.setValue(TypeOpt.fromApi(item.type()));
 
         priorityBox.getItems().addAll(PriorityOpt.values());
-        priorityBox.setValue(PriorityOpt.NONE);
+        priorityBox.setValue(PriorityOpt.fromApi(item.priority()));
 
         titleField.setPromptText("Titolo (obbligatorio)");
         titleField.getStyleClass().add("bb-input");
+        titleField.setText(item.title() == null ? "" : item.title());
 
         descArea.setPromptText("Descrizione (obbligatoria)");
         descArea.setWrapText(true);
         descArea.setPrefRowCount(6);
         descArea.getStyleClass().addAll("bb-input", "bb-textarea");
+        descArea.setText(item.description() == null ? "" : item.description());
 
         typeBox.getStyleClass().add("bb-choice");
         priorityBox.getStyleClass().add("bb-choice");
@@ -78,18 +113,19 @@ public class ReportIssueView extends BorderPane {
 
         pickImgBtn.setOnAction(e -> chooseImage());
         submitBtn.setOnAction(e -> doSubmit());
-        cancelBtn.setOnAction(e -> AppNavigator.goDashboard());
+        cancelBtn.setOnAction(e -> AppNavigator.goIssuesList());
 
         validate();
+        loadExistingImage();
     }
 
     private Node buildTopBar() {
         Button back = new Button();
         back.getStyleClass().add("icon-btn");
         back.setGraphic(loadIcon("icons/back.png", "←", 18));
-        back.setOnAction(e -> AppNavigator.goDashboard());
+        back.setOnAction(e -> AppNavigator.goIssuesList());
 
-        Label title = new Label("Segnala Issue");
+        Label title = new Label("Modifica Issue");
         title.getStyleClass().add("h2");
 
         Region spacer = new Region();
@@ -103,7 +139,7 @@ public class ReportIssueView extends BorderPane {
     }
 
     private Node buildForm() {
-        Label hint = new Label("Compila almeno titolo e descrizione. Lo stato iniziale sarà “todo”.");
+        Label hint = new Label("Aggiorna i campi desiderati. Se scegli una nuova immagine verrà sostituita.");
         hint.getStyleClass().add("muted");
 
         VBox card = new VBox(12,
@@ -181,6 +217,26 @@ public class ReportIssueView extends BorderPane {
         }
     }
 
+    private void loadExistingImage() {
+        if (item.id() == null) return;
+        Task<Image> task = new Task<>() {
+            @Override
+            protected Image call() throws Exception {
+                byte[] data = IssueApi.downloadIssueImageWithFallback(item.id(), item.path());
+                return new Image(new java.io.ByteArrayInputStream(data));
+            }
+        };
+
+        task.setOnSucceeded(e -> preview.setImage(task.getValue()));
+        task.setOnFailed(e -> {
+            // se non c'è immagine, ignoriamo silenziosamente
+        });
+
+        Thread t = new Thread(task);
+        t.setDaemon(true);
+        t.start();
+    }
+
     private void doSubmit() {
         hideError();
         setLoading(true);
@@ -188,18 +244,15 @@ public class ReportIssueView extends BorderPane {
         String title = titleField.getText().trim();
         String desc = descArea.getText().trim();
 
-        String type = typeBox.getValue().apiValue(); // "BUG" ...
-        String priority = priorityBox.getValue().apiValueOrNull(); // null se NONE
+        String type = typeBox.getValue().apiValue();
+        String priority = priorityBox.getValue().apiValueOrNull();
+
         Task<Void> task = new Task<>() {
             @Override
             protected Void call() throws Exception {
-                Long issueId = IssueApi.createIssue(title, desc, type, priority);
+                IssueApi.modifyIssue(item.id(), title, desc, type, priority, item.state());
                 if (selectedImage != null) {
-                    try {
-                        IssueApi.uploadIssueImage(issueId, selectedImage);
-                    } catch (Exception ex) {
-                        throw new RuntimeException("Issue creata ma upload immagine fallito: " + ex.getMessage(), ex);
-                    }
+                    IssueApi.uploadIssueImage(item.id(), selectedImage);
                 }
                 return null;
             }
@@ -208,10 +261,10 @@ public class ReportIssueView extends BorderPane {
         task.setOnSucceeded(e -> {
             setLoading(false);
             Alert a = new Alert(Alert.AlertType.INFORMATION);
-            a.setHeaderText("Issue creata");
-            a.setContentText("Segnalazione inviata con successo.");
+            a.setHeaderText("Issue aggiornata");
+            a.setContentText("Modifiche salvate con successo.");
             a.showAndWait();
-            AppNavigator.goDashboard();
+            AppNavigator.goIssuesList();
         });
 
         task.setOnFailed(e -> {
@@ -221,7 +274,7 @@ public class ReportIssueView extends BorderPane {
                 showError("Sessione non valida o scaduta. Effettua di nuovo il login.");
                 AppNavigator.goLogin();
             } else if (ex instanceof IssueApi.ForbiddenException) {
-                showError("Non hai i permessi per creare issue: " + ex.getMessage());
+                showError("Non hai i permessi per modificare questa issue.");
             } else {
                 showError("Errore: " + ex.getMessage());
             }
@@ -270,6 +323,12 @@ public class ReportIssueView extends BorderPane {
         return new Label(fallbackEmoji);
     }
 
+    private static boolean canEdit(IssueItem it) {
+        boolean mine = Session.getUserId() != null && it.creatorId() != null
+                && it.creatorId().longValue() == Session.getUserId().longValue();
+        return Session.isAdmin() || mine;
+    }
+
     private enum TypeOpt {
         QUESTION("Question", "QUESTION"),
         BUG("Bug", "BUG"),
@@ -285,6 +344,15 @@ public class ReportIssueView extends BorderPane {
         }
 
         public String apiValue() { return api; }
+
+        public static TypeOpt fromApi(String api) {
+            if (api != null) {
+                for (TypeOpt t : values()) {
+                    if (t.api.equalsIgnoreCase(api)) return t;
+                }
+            }
+            return BUG;
+        }
 
         @Override public String toString() { return label; }
     }
@@ -304,6 +372,15 @@ public class ReportIssueView extends BorderPane {
         }
 
         public String apiValueOrNull() { return api; }
+
+        public static PriorityOpt fromApi(String api) {
+            if (api != null) {
+                for (PriorityOpt p : values()) {
+                    if (p.api != null && p.api.equalsIgnoreCase(api)) return p;
+                }
+            }
+            return NONE;
+        }
 
         @Override public String toString() { return label; }
     }
