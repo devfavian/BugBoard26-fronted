@@ -1,5 +1,7 @@
-package application;
+package application.view;
 
+import application.core.AppNavigator;
+import application.core.Session;
 import java.io.InputStream;
 
 import javafx.geometry.Insets;
@@ -71,7 +73,7 @@ public class DashboardView extends BorderPane {
                 "Visualizza Issue",
                 "Vedi tutte le issue e modifica solo le tue",
                 loadIcon("icons/view.png", "📋", 42),
-                AppNavigator::goIssuesList,   // <-- IMPORTANT: qui deve portare alla lista
+                AppNavigator::goIssuesList,
                 "card-view"
         );
 
@@ -121,7 +123,8 @@ public class DashboardView extends BorderPane {
     }
 
     private Node loadIcon(String resourcePath, String fallbackEmoji, int size) {
-        try (InputStream is = getClass().getResourceAsStream(resourcePath)) {
+        String path = resourcePath.startsWith("/") ? resourcePath : "/application/" + resourcePath;
+        try (InputStream is = getClass().getResourceAsStream(path)) {
             if (is != null) {
                 ImageView iv = new ImageView(new Image(is));
                 iv.setFitWidth(size);

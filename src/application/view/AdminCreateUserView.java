@@ -1,5 +1,9 @@
-package application;
+package application.view;
 
+import application.api.AdminApi;
+import application.core.AppNavigator;
+import application.core.Session;
+import application.util.AsyncRunner;
 import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -158,18 +162,15 @@ public class AdminCreateUserView extends BorderPane {
             }
         };
 
-        task.setOnSucceeded(e -> {
+        AsyncRunner.run(task, unused -> {
             setLoading(false);
             Alert a = new Alert(Alert.AlertType.INFORMATION);
             a.setHeaderText("Utenza creata");
             a.setContentText("Account creato con successo.");
             a.showAndWait();
             AppNavigator.goDashboard();
-        });
-
-        task.setOnFailed(e -> {
+        }, ex -> {
             setLoading(false);
-            Throwable ex = task.getException();
             if (ex instanceof AdminApi.UnauthorizedException) {
                 showError("Sessione non valida. Effettua di nuovo il login.");
                 AppNavigator.goLogin();
@@ -181,10 +182,6 @@ public class AdminCreateUserView extends BorderPane {
                 showError("Errore: " + ex.getMessage());
             }
         });
-
-        Thread t = new Thread(task);
-        t.setDaemon(true);
-        t.start();
     }
 
     private void setLoading(boolean loading) {
@@ -211,7 +208,8 @@ public class AdminCreateUserView extends BorderPane {
     }
 
     private Node loadIcon(String resourcePath, String fallbackEmoji, int size) {
-        try (InputStream is = getClass().getResourceAsStream(resourcePath)) {
+        String path = resourcePath.startsWith("/") ? resourcePath : "/application/" + resourcePath;
+        try (InputStream is = getClass().getResourceAsStream(path)) {
             if (is != null) {
                 ImageView iv = new ImageView(new Image(is));
                 iv.setFitWidth(size);

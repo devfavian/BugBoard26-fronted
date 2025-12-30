@@ -1,6 +1,6 @@
+package application.api;
 
-package application;
-
+import application.model.LoginResponse;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -58,7 +58,6 @@ public class AuthApi {
                 throw new RuntimeException("LoginResponse non valido: " + resp.body());
             }
 
-            // 🔥 Normalizza: vogliamo SEMPRE "Bearer ..."
             if (!token.regionMatches(true, 0, "Bearer ", 0, "Bearer ".length())) {
                 token = "Bearer " + token;
             }

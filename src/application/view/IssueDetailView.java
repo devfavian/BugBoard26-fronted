@@ -1,5 +1,9 @@
-package application;
+package application.view;
 
+import application.api.IssueApi;
+import application.config.ApiConfig;
+import application.model.IssueItem;
+import application.util.AsyncRunner;
 import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -172,9 +176,9 @@ public class IssueDetailView extends BorderPane {
             return local.toUri().toString();
         }
         if (p.startsWith("/")) {
-            return ApiConfig.BASE_URL + p;
+            return ApiConfig.baseUrl() + p;
         }
-        return ApiConfig.BASE_URL + "/" + p;
+        return ApiConfig.baseUrl() + "/" + p;
     }
 
     private static void loadImage(Long issueId, String resolvedPath, ImageView img, ProgressIndicator loading, Label error) {
@@ -202,24 +206,18 @@ public class IssueDetailView extends BorderPane {
             }
         };
 
-        task.setOnSucceeded(e -> {
+        AsyncRunner.run(task, image -> {
             loading.setVisible(false);
-            Image image = task.getValue();
             img.setImage(image);
             if (image.isError()) {
                 error.setVisible(true);
                 error.setManaged(true);
             }
-        });
-        task.setOnFailed(e -> {
+        }, ex -> {
             loading.setVisible(false);
             error.setVisible(true);
             error.setManaged(true);
         });
-
-        Thread t = new Thread(task);
-        t.setDaemon(true);
-        t.start();
     }
 
     private static String fmtDate(LocalDateTime dt) {

@@ -1,15 +1,9 @@
-/* =========================
-   BugBoard26 - Modern Clean UI
-   ========================= */
-
-/* ----- App background + font ----- */
 .root {
     -fx-background-color: linear-gradient(to bottom right, #f8f7f4, #eef2ef);
     -fx-font-family: "Space Grotesk", "Sora", "Manrope", "Avenir Next", "Futura", "Noto Sans", "Helvetica Neue";
     -fx-text-fill: #111827;
 }
 
-/* ----- Typography helpers ----- */
 .h1 {
     -fx-font-size: 22px;
     -fx-font-weight: 700;
@@ -24,7 +18,6 @@
     -fx-text-fill: #6b7280;
 }
 
-/* Login title/subtitle */
 .title {
     -fx-font-size: 26px;
     -fx-font-weight: 700;
@@ -35,7 +28,6 @@
     -fx-font-size: 13px;
 }
 
-/* ----- Topbar ----- */
 .topbar {
     -fx-background-color: rgba(255,255,255,0.98);
     -fx-background-radius: 12;
@@ -44,12 +36,10 @@
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 6, 0.2, 0, 2);
 }
 
-/* subbar sotto topbar (ordina per...) */
 .subbar {
     -fx-padding: 8 16 12 16;
 }
 
-/* ----- Generic Card container ----- */
 .card, .form-card, .section-card {
     -fx-background-color: #ffffff;
     -fx-background-radius: 12;
@@ -68,14 +58,12 @@
     -fx-padding: 16;
 }
 
-/* ----- Labels in forms ----- */
 .label, .field-label {
     -fx-text-fill: #374151;
     -fx-font-weight: 600;
     -fx-font-size: 13px;
 }
 
-/* ----- INPUTS ----- */
 .text-field,
 .password-field,
 .text-area,
@@ -100,7 +88,6 @@
     -fx-effect: dropshadow(gaussian, rgba(59,130,246,0.18), 12, 0.2, 0, 0);
 }
 
-/* TextArea */
 .text-area {
     -fx-control-inner-background: #ffffff;
 }
@@ -111,7 +98,6 @@
     -fx-fill: #111827;
 }
 
-/* ComboBox */
 .combo-box-base .list-cell {
     -fx-text-fill: #111827;
     -fx-background-color: transparent;
@@ -126,7 +112,6 @@
     -fx-shape: "M 2 4 L 8 10 L 14 4 Z";
 }
 
-/* Popup del menu a tendina */
 .combo-box-popup .list-view {
     -fx-background-color: #ffffff;
     -fx-background-radius: 8;
@@ -148,7 +133,6 @@
     -fx-background-color: rgba(59,130,246,0.15);
 }
 
-/* ChoiceBox usata nei form */
 .choice-box.bb-choice {
     -fx-background-color: #ffffff;
     -fx-background-radius: 8;
@@ -185,7 +169,6 @@
     -fx-text-fill: #111827;
 }
 
-/* ----- Buttons ----- */
 .button {
     -fx-background-color: #14b8a6;
     -fx-background-radius: 8;
@@ -225,7 +208,6 @@
     -fx-background-color: #0d9488;
 }
 
-/* Secondary */
 .btn-secondary {
     -fx-background-color: #ffffff;
     -fx-text-fill: #374151;
@@ -244,7 +226,6 @@
     -fx-translate-y: -1;
 }
 
-/* Ghost */
 .btn-ghost {
     -fx-background-color: transparent;
     -fx-text-fill: #0f766e;
@@ -259,7 +240,6 @@
     -fx-background-radius: 8;
 }
 
-/* Avatar icon button */
 .icon-btn {
     -fx-background-color: #ffffff;
     -fx-background-radius: 999;
@@ -275,7 +255,6 @@
     -fx-background-color: #f3f4f6;
 }
 
-/* Refresh icon button */
 .btn-refresh-icon {
     -fx-background-color: #ffffff;
     -fx-text-fill: #111827;
@@ -299,13 +278,11 @@
     -fx-scale-y: 0.9;
 }
 
-/* ----- Errors ----- */
 .error {
     -fx-text-fill: #b91c1c;
     -fx-font-weight: 700;
 }
 
-/* ----- Issues list ----- */
 .issues-list {
     -fx-background-color: transparent;
 }
@@ -317,7 +294,6 @@
     -fx-padding: 10 16 10 16;
 }
 
-/* issue card inner */
 .issue-card-clickable {
     -fx-cursor: hand;
 }
@@ -326,7 +302,6 @@
     -fx-border-color: #e5e7eb;
 }
 
-/* Card texts in IssueCell */
 .card-title {
     -fx-font-size: 16px;
     -fx-font-weight: 700;
@@ -337,7 +312,6 @@
     -fx-font-size: 13px;
 }
 
-/* Chips */
 .chip {
     -fx-background-color: #f3f4f6;
     -fx-text-fill: #374151;
@@ -348,7 +322,6 @@
     -fx-border-radius: 999;
 }
 
-/* Locked button */
 .btn-locked {
     -fx-background-color: #f9fafb;
     -fx-text-fill: #9ca3af;
@@ -358,7 +331,6 @@
     -fx-strikethrough: true;
 }
 
-/* Page title usato in IssuesListView */
 .page-title {
     -fx-font-size: 18px;
     -fx-font-weight: 700;
@@ -376,7 +348,6 @@
     -fx-padding: 8;
 }
 
-/* Dashboard cards */
 .card-grid {
     -fx-padding: 6 6 6 6;
 }
@@ -419,7 +390,6 @@
     -fx-opacity: 0.92;
 }
 
-/* Issue detail */
 .detail-card {
     -fx-background-color: #ffffff;
 }
@@ -458,7 +428,6 @@
     -fx-background-radius: 8;
 }
 
-/* Account */
 .kv-row {
     -fx-padding: 6 0 6 0;
 }

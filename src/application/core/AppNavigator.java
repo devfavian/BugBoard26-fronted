@@ -1,5 +1,14 @@
-package application;
+package application.core;
 
+import application.model.IssueItem;
+import application.view.AccountView;
+import application.view.AdminCreateUserView;
+import application.view.DashboardView;
+import application.view.IssuesListView;
+import application.view.LoginView;
+import application.view.ModifyIssueView;
+import application.view.PlaceholderView;
+import application.view.ReportIssueView;
 import javafx.animation.FadeTransition;
 import javafx.scene.Parent;
 import javafx.scene.Scene;

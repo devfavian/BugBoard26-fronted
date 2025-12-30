@@ -1,5 +1,10 @@
-package application;
+package application.view;
 
+import application.api.IssueApi;
+import application.core.AppNavigator;
+import application.core.Session;
+import application.model.IssueItem;
+import application.util.AsyncRunner;
 import javafx.animation.Interpolator;
 import javafx.animation.RotateTransition;
 import javafx.concurrent.Task;
@@ -26,7 +31,6 @@ public class IssuesListView extends BorderPane {
     public IssuesListView() {
         getStyleClass().add("root");
 
-        // --- Top bar
         Button back = new Button("← Dashboard");
         back.getStyleClass().add("btn-ghost");
         back.setOnAction(e -> AppNavigator.goDashboard());
@@ -36,7 +40,7 @@ public class IssuesListView extends BorderPane {
 
         Button profile = new Button("👤");
         profile.getStyleClass().addAll("btn-ghost", "icon-btn");
-        profile.setOnAction(e -> AppNavigator.goAccount()); // se non ce l’hai, metti un Alert
+        profile.setOnAction(e -> AppNavigator.goAccount());
 
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
@@ -46,7 +50,6 @@ public class IssuesListView extends BorderPane {
         top.setPadding(new Insets(14, 16, 8, 16));
         top.getStyleClass().add("topbar");
 
-        // --- Controls row
         sortCombo.getItems().addAll(
                 new SortOpt("Data creazione", "createdAt"),
                 new SortOpt("Priorità", "priority"),
@@ -91,12 +94,10 @@ public class IssuesListView extends BorderPane {
         VBox header = new VBox(top, controls);
         setTop(header);
 
-        // --- list
         list.getStyleClass().add("issues-list");
         list.setCellFactory(lv -> new IssueCell());
         setCenter(list);
 
-        // --- bottom status
         error.getStyleClass().add("error");
         error.setManaged(false);
         error.setVisible(false);
@@ -123,14 +124,11 @@ public class IssuesListView extends BorderPane {
             }
         };
 
-        task.setOnSucceeded(e -> {
+        AsyncRunner.run(task, items -> {
             setLoading(false);
-            list.getItems().setAll(task.getValue());
-        });
-
-        task.setOnFailed(e -> {
+            list.getItems().setAll(items);
+        }, ex -> {
             setLoading(false);
-            Throwable ex = task.getException();
             if (ex instanceof IssueApi.UnauthorizedException) {
                 showError("Sessione non valida. Effettua di nuovo il login.");
                 AppNavigator.goLogin();
@@ -140,10 +138,6 @@ public class IssuesListView extends BorderPane {
                 showError("Errore caricamento issue: " + ex.getMessage());
             }
         });
-
-        Thread t = new Thread(task);
-        t.setDaemon(true);
-        t.start();
     }
 
     private void setLoading(boolean v) {
@@ -173,7 +167,7 @@ public class IssuesListView extends BorderPane {
         IssueDetailView root = new IssueDetailView(item);
         Scene scene = new Scene(root, 720, 640);
         scene.getStylesheets().add(
-                getClass().getResource("application.css").toExternalForm()
+                getClass().getResource("/application/application.css").toExternalForm()
         );
 
         Stage stage = new Stage();
@@ -188,7 +182,6 @@ public class IssuesListView extends BorderPane {
         stage.show();
     }
 
-    // ---- cell card style
     private class IssueCell extends ListCell<IssueItem> {
         @Override
         protected void updateItem(IssueItem it, boolean empty) {

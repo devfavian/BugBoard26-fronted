@@ -1,15 +1,14 @@
-package application;
+package application.core;
 
 public final class Session {
 
     private static Long userId;
-    private static String role;     // "ADMIN" o "USER"
-    private static String token; 
-    private static String email;   // JWT "Bearer ..."
+    private static String role;
+    private static String token;
+    private static String email;
 
     private Session() {}
 
-    // --- userId ---
     public static Long getUserId() { return userId; }
     public static void setUserId(Long id) { userId = id; }
 
@@ -17,7 +16,6 @@ public final class Session {
     public static void setEmail(String e) { email = e; }
 
 
-    // --- role ---
     public static String getRole() { return role; }
     public static void setRole(String r) { role = r; }
 
@@ -25,13 +23,8 @@ public final class Session {
         return role != null && role.equalsIgnoreCase("ADMIN");
     }
 
-    // --- token (JWT) ---
     public static String getToken() { return token; }
     public static void setToken(String t) { token = t; }
-    /**
-     * Restituisce sempre il token con prefisso "Bearer ...".
-     * Se il token non è disponibile, ritorna null.
-     */
     public static String getBearerTokenOrNull() {
         if (token == null || token.isBlank()) return null;
         String tok = token.trim();

@@ -1,5 +1,7 @@
-package application;
+package application.api;
 
+import application.config.ApiConfig;
+import application.core.Session;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -45,7 +47,7 @@ public class AdminApi {
      * Body: {email, psw, role}
      */
     public static void registerUser(String email, String psw, String role) throws Exception {
-        String url = ApiConfig.BASE_URL + "/bugboard/admin/register";
+        String url = ApiConfig.baseUrl() + "/bugboard/admin/register";
 
         Map<String, Object> payload = Map.of(
                 "email", email,

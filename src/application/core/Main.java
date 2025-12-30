@@ -1,5 +1,6 @@
-package application;
+package application.core;
 
+import application.view.LoginView;
 import javafx.application.Application;
 import javafx.animation.Interpolator;
 import javafx.animation.ScaleTransition;
@@ -16,12 +17,11 @@ public class Main extends Application {
     @Override
     public void start(Stage primaryStage) {
 
-        // scena unica + navigazione tra schermate cambiando root
-        Scene scene = new Scene(new LoginView(), 1000, 700);   // <-- dimensione “standard”
+        Scene scene = new Scene(new LoginView(), 1000, 700);
         AppNavigator.init(scene);
 
         scene.getStylesheets().add(
-            getClass().getResource("application.css").toExternalForm()
+            getClass().getResource("/application/application.css").toExternalForm()
         );
 
         installButtonHover(scene);
@@ -30,7 +30,7 @@ public class Main extends Application {
         primaryStage.setScene(scene);
         primaryStage.setMinWidth(900);
         primaryStage.setMinHeight(650);
-        primaryStage.setResizable(true);                       // <-- NON più false
+        primaryStage.setResizable(true);
         primaryStage.centerOnScreen();
         primaryStage.show();
     }

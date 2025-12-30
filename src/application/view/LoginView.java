@@ -1,5 +1,11 @@
-package application;
+package application.view;
 
+import application.api.AuthApi;
+import application.config.ApiConfig;
+import application.core.AppNavigator;
+import application.core.Session;
+import application.model.LoginResponse;
+import application.util.AsyncRunner;
 import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -24,7 +30,6 @@ public class LoginView extends BorderPane {
     public LoginView() {
         getStyleClass().add("root");
 
-        // --- Header
         Label title = new Label("BugBoard26");
         title.getStyleClass().add("title");
 
@@ -34,11 +39,9 @@ public class LoginView extends BorderPane {
         VBox header = new VBox(6, title, subtitle);
         header.setPadding(new Insets(20, 20, 10, 20));
 
-        // --- Form
         emailField.setPromptText("Email");
         pswField.setPromptText("Password");
 
-        // controlli input (semplici ma efficaci)
         emailField.textProperty().addListener((obs, o, n) -> validate());
         pswField.textProperty().addListener((obs, o, n) -> validate());
 
@@ -60,7 +63,6 @@ public class LoginView extends BorderPane {
         );
         form.setPadding(new Insets(10, 20, 20, 20));
 
-        // card centrale
         VBox card = new VBox(12, header, form);
         card.getStyleClass().add("card");
         card.setMaxWidth(360);
@@ -68,9 +70,8 @@ public class LoginView extends BorderPane {
         BorderPane.setAlignment(card, Pos.CENTER);
         setCenter(card);
 
-        // --- eventi
         loginBtn.setOnAction(e -> doLogin());
-        validate(); // iniziale
+        validate();
     }
 
     private VBox labeled(String label, Control field) {
@@ -82,18 +83,17 @@ public class LoginView extends BorderPane {
     }
 
     private void validate() {
-    String email = emailField.getText() == null ? "" : emailField.getText().trim();
-    String psw = pswField.getText() == null ? "" : pswField.getText();
+        String email = emailField.getText() == null ? "" : emailField.getText().trim();
+        String psw = pswField.getText() == null ? "" : pswField.getText();
 
-    // niente regex: il bottone deve essere cliccabile con QUALSIASI email
-    boolean canClick = !email.isBlank() && !psw.isBlank();
+        boolean canClick = !email.isBlank() && !psw.isBlank();
 
-    loginBtn.setDisable(!canClick);
+        loginBtn.setDisable(!canClick);
 
-    if (errorLabel.isVisible()) {
-        hideError();
+        if (errorLabel.isVisible()) {
+            hideError();
+        }
     }
-}
 
 
     private void doLogin() {
@@ -107,74 +107,46 @@ public class LoginView extends BorderPane {
         Task<LoginResponse> task = new Task<>() {
             @Override
             protected LoginResponse call() throws Exception {
-                // backend: POST /bugboard/login
-                return AuthApi.login(ApiConfig.BASE_URL, email, psw);
+                return AuthApi.login(ApiConfig.baseUrl(), email, psw);
             }
         };
 
-        task.setOnSucceeded(ev -> {
+        AsyncRunner.run(task, res -> {
             setLoading(false);
-            LoginResponse res = task.getValue();
 
             Session.setUserId(res.userID());
             Session.setRole(res.role());
             Session.setEmail(email);
 
-            // token: lo rendiamo SEMPRE "Bearer ..."
             String tok = res.token();
             if (tok != null && !tok.isBlank() && !tok.toLowerCase().startsWith("bearer ")) {
                 tok = "Bearer " + tok;
             }
             Session.setToken(tok);
 
-            System.out.println("=== LOGIN OK ===");
-            System.out.println("userId = " + Session.getUserId());
-            System.out.println("role   = " + Session.getRole());
-            System.out.println("email  = " + Session.getEmail());
-            String t = Session.getToken();
-            System.out.println("token  = " + (t == null ? "null" : (t.length() > 25 ? t.substring(0, 25) + "...(len=" + t.length() + ")" : t)));
-            System.out.println("================");
-            System.out.println("FULL TOKEN = " + Session.getToken());
-
-            
-
-            System.out.println("JWT HEADER  = " + JwtDebug.header(Session.getToken()));
-            System.out.println("JWT PAYLOAD = " + JwtDebug.payload(Session.getToken()));
-
 
             AppNavigator.goDashboard();
-        });
-
-
-
-        task.setOnFailed(ev -> {
+        }, ex -> {
             setLoading(false);
-            Throwable ex = task.getException();
-
-            // se AuthApi lancia UnauthorizedException => credenziali errate
             if (ex instanceof AuthApi.UnauthorizedException) {
                 showError("Credenziali non valide (401).");
             } else {
                 showError("Errore di connessione o server: " + ex.getMessage());
             }
         });
-
-        Thread t = new Thread(task);
-        t.setDaemon(true);
-        t.start();
     }
 
     
     private void setLoading(boolean loading) {
-    emailField.setDisable(loading);
-    pswField.setDisable(loading);
-    spinner.setVisible(loading);
-    loginBtn.setDisable(loading);
+        emailField.setDisable(loading);
+        pswField.setDisable(loading);
+        spinner.setVisible(loading);
+        loginBtn.setDisable(loading);
 
-    if (!loading) {
-        validate(); // ripristina lo stato corretto dopo la chiamata
+        if (!loading) {
+            validate();
+        }
     }
-}
 
 
 

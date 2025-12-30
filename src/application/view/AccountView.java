@@ -1,5 +1,7 @@
-package application;
+package application.view;
 
+import application.core.AppNavigator;
+import application.core.Session;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;

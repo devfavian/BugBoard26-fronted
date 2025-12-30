@@ -1,5 +1,8 @@
-package application;
+package application.api;
 
+import application.config.ApiConfig;
+import application.core.Session;
+import application.model.IssueItem;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -39,48 +42,19 @@ public class IssueApi {
     private static final ObjectMapper MAPPER = new ObjectMapper()
             .registerModule(new JavaTimeModule());
 
-    /** Aggiunge Authorization corretta: "Bearer <jwt>" */
     private static void addAuth(HttpRequest.Builder b) {
         String token = Session.getBearerTokenOrNull();
         if (token == null) {
             throw new UnauthorizedException("Token assente, effettua di nuovo il login.");
         }
-
-        // setHeader evita header duplicati
         b.setHeader("Authorization", token);
-    }
-
-    private static void debugRequest(HttpRequest req) {
-        String auth = req.headers().firstValue("Authorization").orElse("<missing>");
-        String authShort = auth;
-
-        // non stampiamo tutto il token: solo prefisso + lunghezza
-        if (auth.toLowerCase().startsWith("bearer ")) {
-            String jwt = auth.substring(7);
-            String head = jwt.length() > 18 ? jwt.substring(0, 18) + "..." : jwt;
-            authShort = "Bearer " + head + " (len=" + jwt.length() + ")";
-        }
-
-        System.out.println("=== ISSUE API REQ ===");
-        System.out.println(req.method() + " " + req.uri());
-        System.out.println("Authorization = " + authShort);
-    }
-
-    private static void debugResponse(HttpResponse<String> resp) {
-        System.out.println("=== ISSUE API RESP ===");
-        System.out.println("status = " + resp.statusCode());
-        String body = resp.body() == null ? "" : resp.body();
-        if (!body.isBlank()) {
-            // stampa max 400 char
-            System.out.println("body = " + (body.length() > 400 ? body.substring(0, 400) + "..." : body));
-        }
     }
 
     /**
      * GET /bugboard/issue/view?sort=...
      */
     public static List<IssueItem> getIssues(String sort) throws Exception {
-        String url = ApiConfig.BASE_URL + "/bugboard/issue/view?sort=" +
+        String url = ApiConfig.baseUrl() + "/bugboard/issue/view?sort=" +
                 URLEncoder.encode(sort, StandardCharsets.UTF_8);
 
         HttpRequest.Builder b = HttpRequest.newBuilder()
@@ -92,13 +66,10 @@ public class IssueApi {
         addAuth(b);
 
         HttpRequest req = b.build();
-        debugRequest(req);
-
         HttpResponse<String> resp = CLIENT.send(
                 req,
                 HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8)
         );
-        debugResponse(resp);
 
         if (resp.statusCode() == 200) {
             return MAPPER.readValue(resp.body(), new TypeReference<List<IssueItem>>() {});
@@ -121,7 +92,7 @@ public class IssueApi {
                                    String type,
                                    String priorityOrNull) throws Exception {
 
-        String url = ApiConfig.BASE_URL + "/bugboard/issue/new";
+        String url = ApiConfig.baseUrl() + "/bugboard/issue/new";
 
         Map<String, Object> payload = new LinkedHashMap<>();
         payload.put("title", title);
@@ -144,13 +115,10 @@ public class IssueApi {
         addAuth(b);
 
         HttpRequest req = b.build();
-        debugRequest(req);
-
         HttpResponse<String> resp = CLIENT.send(
                 req,
                 HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8)
         );
-        debugResponse(resp);
 
         if (resp.statusCode() == 201 || resp.statusCode() == 200) {
             Long id = readIssueId(resp.body());
@@ -183,7 +151,7 @@ public class IssueApi {
             throw new IllegalArgumentException("id mancante");
         }
 
-        String url = ApiConfig.BASE_URL + "/bugboard/issue/modify/" + id;
+        String url = ApiConfig.baseUrl() + "/bugboard/issue/modify/" + id;
 
         Map<String, Object> payload = new LinkedHashMap<>();
         if (title != null && !title.isBlank()) {
@@ -214,13 +182,10 @@ public class IssueApi {
         addAuth(b);
 
         HttpRequest req = b.build();
-        debugRequest(req);
-
         HttpResponse<String> resp = CLIENT.send(
                 req,
                 HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8)
         );
-        debugResponse(resp);
 
         if (resp.statusCode() == 200) {
             return;
@@ -248,7 +213,7 @@ public class IssueApi {
         }
         validateImageFile(file);
 
-        String url = ApiConfig.BASE_URL + "/bugboard/issue/" + issueId + "/image";
+        String url = ApiConfig.baseUrl() + "/bugboard/issue/" + issueId + "/image";
         String boundary = "BugBoardBoundary" + System.currentTimeMillis();
 
         HttpRequest.BodyPublisher body = buildMultipartBody(boundary, file);
@@ -263,13 +228,10 @@ public class IssueApi {
         addAuth(b);
 
         HttpRequest req = b.build();
-        debugRequest(req);
-
         HttpResponse<String> resp = CLIENT.send(
                 req,
                 HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8)
         );
-        debugResponse(resp);
 
         if (resp.statusCode() == 200 || resp.statusCode() == 201) {
             return readImagePath(resp.body());
@@ -344,8 +306,6 @@ public class IssueApi {
         addAuth(b);
 
         HttpRequest req = b.build();
-        debugRequest(req);
-
         HttpResponse<byte[]> resp = CLIENT.send(
                 req,
                 HttpResponse.BodyHandlers.ofByteArray()
@@ -364,13 +324,10 @@ public class IssueApi {
         throw new RuntimeException("HTTP " + resp.statusCode());
     }
 
-    /**
-     * Try download from provided URL, then fallback to /bugboard/issue/{id}/image if available.
-     */
     public static byte[] downloadIssueImageWithFallback(Long issueId, String url) throws Exception {
         Exception last = null;
         if (issueId != null) {
-            String primaryUrl = ApiConfig.BASE_URL + "/bugboard/issue/" + issueId + "/image";
+            String primaryUrl = ApiConfig.baseUrl() + "/bugboard/issue/" + issueId + "/image";
             try {
                 return downloadIssueImage(primaryUrl);
             } catch (Exception ex) {

@@ -1,5 +1,6 @@
-package application;
+package application.view;
 
+import application.core.AppNavigator;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
