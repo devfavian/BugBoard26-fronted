@@ -79,7 +79,7 @@ public class IssueDetailView extends BorderPane {
 
         VBox meta = new VBox(6,
                 metaRow("ID", safe(item.id())),
-                metaRow("Creatore", safe(item.creatorId())),
+                metaRow("Creatore", safe(item.creatorEmail())),
                 metaRow("Creata il", fmtDate(item.createdAt())),
                 metaRow("Aggiornata il", fmtDate(item.updatedAt()))
         );

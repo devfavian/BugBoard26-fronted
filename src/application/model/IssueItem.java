@@ -15,5 +15,6 @@ public record IssueItem(
         String path,
         LocalDateTime createdAt,
         LocalDateTime updatedAt,
-        Long creatorId
+        Long creatorId,
+        String creatorEmail
 ) {}
